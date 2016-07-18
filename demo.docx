@@ -1,0 +1,126 @@
+1. <% provide(:title, "Home") %> : truyền key là title với giá trị là Home
+2. yield(:title): Đặt giá trị của key đã được truyền vào template
+3. <% ... %> executes the code inside, while <%= ... %> executes it and inserts the result into the template
+4. <%= yield %> :for example, visiting the page /static_pages/home converts the contents of home.html.erb to HTML and then inserts it in place of <%= yield %>.
+5. get 'signup' -> Raisl tự động sinh ra signup_path
+6. The final line in the block, t.timestamps null: false, is a special command that creates two magic columns called created_at and updated_at, which are timestamps that automatically record when a given user is created and updated.
+7. The first time db:migrate is run, it creates a file called db/development.sqlite3, 
+8. user.save -> sau khi create hay update, để lưu vào db, trả về TRUE/FALSE
+9. validate and validates?
+* validates: check cho hầu hết validators mặc định và lớp custom validator (Rails cho phé ghi đè các method trong lớp Validator)
+VD: validates :title, :body, :presence => true -> phải có title, body, các trường khác ko có cũng được
+ validate: thêm 1 method/block validation, tự định nghĩa 
+validates(:name, presence: true)
+10. valid? check so với điều kiện valid trong model
+11. callback: là 1 method được thực thi tại điểm cụ thể trong lifecycle của đối tượng ActiveRecord
+ - before_save callback
+-> Sử dụng method reference thuận tiện hơn để định nghĩa callback
+12. self.email? -> lưu vào thuộc tính của email của user trong db
+13. has_secure_password làm các chức năng:
+ - lưu password_digest attribute vào db
+ - so ánh password và password_confirmation
+ - authenticate trả về TRUE hoặc FAILS
+ - hoạt động khi đối tượng model có thuộc tính password_digest
+ - password_digest được tạo ra bởi bcrypt hash
+NOTE: bảng user không có trường password, chỉ có trường password_digest( cho has_secure_password) sinh ra
+User.create(name:"Tr",email:"trangvuuet@gmail.com",hobbies:"",password:"Trang1912",password_confirmation:"Trang1912")
+14. Sửa db trong schema
+15. @mixin box_sizing {} - khai báo 1 block trong scc
+16. resources: Index, new, create, show, edit, update, destroy
+resource: new, create, show, edit, update, destroy
+17. uninitialized constant UsersController -> tên controller cần có s -> Users
+18. attr_accessor :name, :email
+19.  dedicated shared/ directory for partials expected to be used in views across multiple controllers
+20. pluralize(1, "error") -> đếm đúng số lượng errors
+21. flash: cung cấp temporary messages, hoạt động giống như hash
+22. Your error would seem to be coming from the first line of the gravatar_for method, which calls user.email.downcase, suggesting you have at least one user with a nil email address in the database.
+http://stackoverflow.com/questions/20580403/undefined-method-downcase-for-nilnilclass-railstutorial
+23. 
+*= require_tree .
+ensures that all CSS files in the app/assets/stylesheets directory (including the tree subdirectories) are included into the application CSS. The line
+*= require_self
+specifies where in the loading sequence the CSS in application.css itself gets included.
+24.
+ get 'help'    => 'static_pages#help' -> GET method HTTP
+25. 
+ - Để sử dụng Bootstrap: gem bootstrap-sas, 3.2.0.0 -> bundle install -> import @import "bootstrap-sprockets";
+@import "bootstrap";
+26. 
+ <%= debug(params) if Rails.env.development? %> -> debug trên web, môi trường dev
+27. git push heroku
+$ heroku run rake db:migrate
+28. tao model -> rake db:migrate
+29. gravatar_for method in the file for helpers associated with the Users controller.
+30. 
+ - form_for takes a block with one variable, which we’ve called f (for “form”).
+ -  returns code for that element specifically designed to set an attribute of the @user object.
+ - <%= f.label :name %>
+<%= f.text_field :name %>
+
+creates the HTML needed to make a labeled text field element appropriate for setting the name attribute of a User model.
+31.
+Trong form login, tại sao dùng params[:user] mà ko phải là params[:user_id].
+-> Vì đây làm hàm create, User.create cần đấy đủ các trường, không chỉ user_id
+32.
+@user = User.new(params[:user])
+
+is mostly equivalent to
+
+@user = User.new(name: "Foo Bar", email: "foo@invalid",
+                 password: "foo", password_confirmation: "bar")
+Để params[:user] -> dễ bị lỗi security
+Trong các version > 4.0, Rails sd method att_accessible trong model layer để giải quyết vấn đề trên. Từ Rails4, Rails sd strong parameters trong controller layer, các attriute được required thông qua hàm permit
+33.
+SSL in production -> chuyển từ http -> https
+34. 
+session[:user_id] = user.id
+-> method của Rails cung cấp, khác với các method định nghĩa trong Session controller, :user_id: key
+35.
+user = user_url(user)
+36.
+Tại sao dùng
+def current_user
+    @current_user ||= User.find_by(id: session[:user_id])
+  end
+nếu dùng  User.find_by(id: session[:user_id]) -> phải query database nhiều lần
+37.
+self.remember_token: Rails handle assignments inside object. Using self ensures that assignment sets the user’s remember_token attribute.
+http://3rd-edition.railstutorial.org/book/log_in_log_out#code-persistent_current_user
+38.
+drop down list cannot work in Heroku -> config.assets.compile = true
+40.
+target="_blank" in the Gravatar link is a neat trick to get the browser to open the page in a new window or tab, which is convenient behavior when linking to a third-party site.
+41.
+Since web browsers can’t natively send PATCH requests (as required by the REST conventions from Table 7.1), Rails fakes it with a POST request and a hidden input field
+42.
+use a before filter in the Users controller. Before filters use the before_action command to arrange for a particular method to be called before the given actions.To require users to be logged in, we define a logged_in_user method and invoke it using before_action :logged_in_user
+43.
+Trong action index (user_controller), NOTE: @users = User.all (NOT @user)
+44.
+Modify ngoài app -> restart server
+45.
+<%= render @users %> = for (render user). Rails tự động lặp biến @user
+46.
+ toggle! method to flip the admin attribute from false to true.
+47.
+heroku run rake assets:reset
+heroku run rake assets:precompile
+48.
+ In that case, we used a before_save callback combined with the downcase method (Listing 6.31). A before_save callback is automatically called before the object is saved, which includes both object creation and updates, but in the case of the activation digest we only want the callback to fire when the user is created. -> method reference,
+49. Activations
+<% entry.comments.each do |comment| %>
+    <%= comment.content %>
+    <% end %
+
+
+
+
+
+
+
+
+
+
+
+
+
